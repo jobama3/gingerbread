@@ -1,0 +1,1 @@
+#!/bin/bashwhile :do	python fadecandy_colog.py red	python fadecandy_colog.py greendone
