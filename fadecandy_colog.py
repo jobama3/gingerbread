@@ -33,23 +33,22 @@ elif color == "black":
     for i in range(start, end):
         pixels[i] = black
 elif color == "redgreen":
-    for j in range(0, 20):
-        time.sleep(0.5)
-        for i in range(start, end - 1, 2):
-            pixels[i] = (red, green)[j % 2 == 0]
-            pixels[i + 1] = (green, red)[j % 2 == 0]
-        client.put_pixels(pixels)
+    for i in range(start, end - 1, 2):
+        pixels[i] = red
+        pixels[i + 1] = green
 elif color == "random":
-    for i in range(0, 20):
-        time.sleep(0.5)
-        for i in range(start, end):
-            pixels[i] = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    for i in range(start, end):
+        pixels[i] = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 elif color == "rainbow":
     for i in range(start, end):
         (r, g, b) = colorsys.hsv_to_rgb(float(i) / end, 1.0, 1.0)
         pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
 
-action = sys.argv[2]
+if (len(sys.argv)>2):
+    action = sys.argv[2]
+else:
+    action = "on"
+    
 if action == "chase":
     d = collections.deque(pixels)
     for i in range(0, 300):
@@ -57,18 +56,38 @@ if action == "chase":
         d.rotate(1)
         client.put_pixels(d)
 elif action == "fadetest":
-    for j in range(0, 150):
+     # Stores as HSV values, modifies V value to fade down and back, sending each frame
+    hsv = [ colorsys.rgb_to_hsv(float(r)/255, float(g)/255, float(b)/255) for (r ,g, b) in pixels ]
+    for j in range(0, 50):
         for i in range(start, end):
-            (h, s, v) = colorsys.rgb_to_hsv(pixels[i])
-            (r, g, b) = colorsys.hsv_to_rgb(h, s, v * (150 - j) / 150)
+            (h, s, v) = hsv[i]
+            (r, g, b) = colorsys.hsv_to_rgb(h, s, v * (50 - j) / 50)
             pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
         client.put_pixels(pixels)
-    for j in range(0, 150):
+        print pixels[0]
+        time.sleep(0.05)
+    for j in range(0, 50):
         for i in range(start, end):
-            (h, s, v) = colorsys.rgb_to_hsv(pixels[i])
-            (r, g, b) = colorsys.hsv_to_rgb(h, s, v * j / 150)
+            (h, s, v) = hsv[i]
+            (r, g, b) = colorsys.hsv_to_rgb(h, s, v * j / 50)
             pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
         client.put_pixels(pixels)
+        time.sleep(0.05)
+elif action == "fadetest2":
+     # Demonstrates fadecandy interpolation based on time between previous frame
+    blackpixels = [(0, 0, 0)] * mappedPixels
+    client.put_pixels(blackpixels)
+    time.sleep(0.5)
+    client.put_pixels(blackpixels)
+    time.sleep(0.5)
+    client.put_pixels(pixels)
+    time.sleep(2)
+    client.put_pixels(blackpixels)
+    time.sleep(5)
+    client.put_pixels(pixels)
+    time.sleep(5)
+    client.put_pixels(blackpixels)
+
 else:
     # Immediately display new frame
     client.put_pixels(pixels)
