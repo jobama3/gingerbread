@@ -42,10 +42,11 @@ location_pixel_sets = {
 emulate = False
 silent = False
 useMS = False
+debug = False
 
 #parse and validate args
 try:                                
-  opts, args = getopt.getopt(sys.argv[1:], "hs:a:eq", ["help", "sequence=", "audio=", "emulate", "silent"])
+  opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq", ["help", "sequence=", "audio=", "emulate", "silent", "debug"])
 except getopt.GetoptError:
   print "Error parsing args"
   usage()
@@ -64,6 +65,8 @@ for opt, arg in opts:
     print "Emulating"
   elif opt in ("-q", "--silent"):
     silent = True
+  elif opt in ("-d", "--debug"):
+    debug = True
 
 try:
   print "Sequence file: ", sequence_file
@@ -225,6 +228,7 @@ while True :
     location = next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
     command_options = "NONE" if (len(next_step) < 4 or "=" not in next_step[3]) else dict(item.split("=") for item in next_step[3].split(";"))
+    if debug print("command options: ", command_options)
     
     # parse command and update pixel map
     if "BACKGROUND_COLOR" in command_options:
@@ -239,6 +243,7 @@ while True :
         # No overflow checks, hopefully we are smart enough to pass in the right values :)
         location_offset = location_pixels[0]
         location_pixels = [x+location_offset for x in map(int, command_options["PIXELS"].split("."))]
+        if debug print("pixel subset: ", location_pixels)
         command = "SET_PIXELS"
     if command == "SET_EVERY_OTHER_PIXEL":
       location_pixels = location_pixels[::2]
