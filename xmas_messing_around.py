@@ -38,10 +38,13 @@ location_pixel_sets = {
   "JOE": range(numLEDs/2, numLEDs)
 }
 
-#options
+# argument options
 emulate = False
 silent = False
 useMS = False
+
+# Sequence options
+color_option = "COLOR"
 
 #parse and validate args
 try:                                
@@ -183,8 +186,8 @@ while True :
   time_elapsed = getcurtime() - start_time
   
   if command == "":
-    # Parse next sequence, expected format:
-    # TIME(S),COMMAND,LOCATION,[optional]VALUE
+    # Find next command time.  Expected format:
+    # TIME(S),COMMAND...
     if seq_data[step].startswith("#"):
       # Comment line
       print seq_data[step]
@@ -212,23 +215,26 @@ while True :
       print("Merry Xmas! <3")
       put_pixels(black_pixels, now=False)
       sys.exit()
-      
+    
+    # Parse next sequence, expected format (see top of script for possible options)
+    # TIME(S),COMMAND,LOCATION,OPTIONS[COLOR=RED;FADE=TRUE;BACKGROUND=NONE;etc]
     location = next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
-    value = "WHITE" if len(next_step) < 4 else next_step[3]
+    command_options = "NONE" if (len(next_step) < 4 or "=" not in next_step[3]) else dict(item.split("=") for item in next_step[3].split(";"))
     
     # parse command and update pixel map
     if command == "SET_EVERY_OTHER_PIXEL":
       location_pixels = location_pixels[::2]
       command = "SET_PIXELS"
     if command == "SET_PIXELS":
-      if value == "RAINBOW":
+      color = "BLACK" if color_option not in command_options else command_options[color_option]
+      if color == "RAINBOW":
         numPixels = len(location_pixels)
         for i in location_pixels:
           (r, g, b) = colorsys.hsv_to_rgb(float(i) / numPixels, 1.0, 1.0)
           pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
       else:
-        rgb = get_rgb(value)
+        rgb = get_rgb(color)
         set_pixel_rgb(rgb, location_pixels)
     if command == "CHASE":
       d = collections.deque(pixels)
