@@ -93,7 +93,7 @@ def initialize():
       emulate = True
   
   # turn off all pixels to start
-  put_pixels(black_pixels, now=True);
+  put_pixels(black_pixels, fade=False);
 ####################################################################
 
 
@@ -120,12 +120,12 @@ def startaudio():
 
 
 #####################################################################
-def put_pixels(pixels, now=True):
+def put_pixels(pixels, fade=False):
   if emulate:
     heathercandy_emulator.put_pixels(pixels)
   else:
     client.put_pixels(pixels)
-    if (now):
+    if not fade:
       client.put_pixels(pixels)
 ####################################################################
 
@@ -217,7 +217,7 @@ while True :
   if command_time <= time_elapsed:
     if command == "END":
       print("Merry Xmas! <3")
-      put_pixels(black_pixels, now=False)
+      put_pixels(black_pixels, fade=True)
       sys.exit()
     
     # Parse next sequence, expected format
@@ -259,6 +259,6 @@ while True :
       pixels = d
     
     # push pixels
-    put_pixels(pixels)
+    put_pixels(pixels, fade="FADE" in command_options)
     command = ""
     step += 1
