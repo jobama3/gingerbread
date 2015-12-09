@@ -218,6 +218,9 @@ while True :
     value = next_step[3] if len(next_step) > 2 else "WHITE"
     
     # parse command and update pixel map
+    if command == "SET_EVERY_OTHER_PIXEL":
+      location_pixels = location_pixels[::2]
+      command = "SET_PIXELS"
     if command == "SET_PIXELS":
       if value == "RAINBOW":
         numPixels = len(location_pixels)
