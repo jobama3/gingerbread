@@ -155,8 +155,14 @@ def get_location_pixels(locationstring):
 #####################################################################
 # Parse rgb value from string
 def get_rgb(colorstring):
-  # Eventually let raw rgb values get set or hsv or whatever format
-  return rgb_colors[colorstring] if colorstring in rgb_colors else rgb_colors["WHITE"]
+  # Use known colors, or raw values like 'rbg.255.255.255'
+  multi_values = colorstring.split(".")
+  if len(multi_values) == 1:
+    return rgb_colors[colorstring] if colorstring in rgb_colors else rgb_colors["WHITE"]
+  elif multi_values[0] == "rgb" and len(multi_values) == 4:
+    return (multi_values[1], multi_values[2], multi_values[3])
+  else:
+    return rgb_colors["WHITE"]
 #####################################################################
 
 
