@@ -5,4 +5,5 @@
 import pygame
 
 def put_pixels(pixels):
-	print pixels
+    print pixels
+    print

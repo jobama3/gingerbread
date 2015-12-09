@@ -20,16 +20,23 @@ def usage():
 
 #fadecandy constants
 numLEDs = 50
-black = (0,0,0)
-white = (255,255,255)
-green = (255,0,0)
-red = (0,255,0)
-black_pixels = [ black ] * numLEDs
+# If you add/remove colors, please add/remove a sequence accordingly to test_sequence.txt
+rgb_colors = {
+  "BLACK": (0,0,0),
+  "WHITE": (255,255,255),
+  "GREEN": (255,0,0),
+  "RED": (0,255,0)
+}
+black_pixels = [ rgb_colors["BLACK"] ] * numLEDs
 
 #pixel location constants
-all_pixel_set = range(0, numLEDs);
-heather_pixel_set = range(0, numLEDs/2)
-joe_pixel_set = range(numLEDs/2, numLEDs);
+# If you add/remove locations, please add/remove a sequence accordingly to test_sequence.txt
+all_pixels = range(0, numLEDs)
+location_pixel_sets = {
+  "ALL": all_pixels,
+  "HEATHER": range(0, numLEDs/2),
+  "JOE": range(numLEDs/2, numLEDs)
+}
 
 #options
 emulate = False
@@ -124,7 +131,7 @@ def put_pixels(pixels, now=True):
 
 
 #####################################################################
-# Open the input sequnce file and read/parse it
+# Open the input sequence file and read/parse it
 def getcurtime():
   if useMS:
     cur_time = int(round(time.time()*1000))
@@ -135,20 +142,27 @@ def getcurtime():
 
 
 #####################################################################
+# Get location pixel set from string
+def get_location_pixels(locationstring):
+  # Eventually let individual pixels or a range or a list get used
+  return all_pixels if not location in location_pixel_sets else location_pixel_sets[location]
+#####################################################################
+
+
+#####################################################################
+# Parse rgb value from string
+def get_rgb(colorstring):
+  # Eventually let raw rgb values get set or hsv or whatever format
+  return rgb_colors[colorstring] if colorstring in rgb_colors else rgb_colors["WHITE"]
+#####################################################################
+
+
+#####################################################################
 # Set all pixels in given set to a given color
 def set_pixel_rgb(rgb, pixel_set):
   for i in pixel_set:
     pixels[i] = rgb
 #####################################################################
-
-
-#####################################################################
-# Set all pixels in given set to a given color
-def get_pixel_set(set_name):
-  for i in pixel_set:
-    pixels[i] = rgb
-#####################################################################
-
 
 
 initialize()
@@ -163,44 +177,51 @@ pixels = black_pixels
 heatherSet = False
 joeSet = False
 start_time = getcurtime()
-step       = 1 #ignore the header line
+step       = 0
 command = ""
 while True :
   time_elapsed = getcurtime() - start_time
   
   if command == "":
-    # Format of input sequence data
-    # TIME(S),COMMAND,VALUE
+    # Parse next sequence, expected format:
+    # TIME(S),COMMAND,LOCATION,[optional]VALUE
+    if seq_data[step].startswith("#"):
+      # Comment line
+      print seq_data[step]
+      step += 1
+      continue
+      
     next_step = seq_data[step].split(",");
+    if len(next_step) < 2 or (next_step[1] != "END" and len(next_step) < 3):
+      # If next sequence is not formatted as expected, ignore
+      print "Unexpected sequence format: ", next_step
+      step += 1
+      continue
+    
+    command = next_step[1].rstrip() #assuming this is cleaning up whitespace
+    print(next_step)
     
     if (useMS):
       command_time = int(next_step[0])
     else:
       command_time = float(next_step[0])
-    command = next_step[1].rstrip() #assuming this is cleaning up whitespace
-    value = next_step[2] if len(next_step) > 2 else "WHITE"
 
   # time to run the command
   if command_time <= time_elapsed:
-    # print next_step
-    print(command)
-    step += 1
+    if command == "END":
+      print("Merry Xmas! <3")
+      sys.exit()
+      
+    location = next_step[2].rstrip()
+    location_pixels = get_location_pixels(location)
+    value = next_step[3] if len(next_step) > 2 else "WHITE"
     
     # parse command and update pixel map
-    if command == "END":
-      sys.exit()
-    elif command == "ALL":
-      set_pixel_rgb(white, all_pixel_set)
-    elif command == "HEATHER":
-      color = red if heatherSet else white
-      heatherSet = not heatherSet
-      set_pixel_rgb(color, heather_pixel_set)
-    elif command == "JOE":
-      color = white if joeSet else green
-      joeSet = not joeSet
-      set_pixel_rgb(color, joe_pixel_set)
+    if command == "SET_PIXELS":
+      rgb = get_rgb(value)
+      set_pixel_rgb(rgb, location_pixels)
     
     # push pixels
     put_pixels(pixels)
     command = ""
-
+    step += 1
