@@ -26,11 +26,17 @@ green = (255,0,0)
 red = (0,255,0)
 black_pixels = [ black ] * numLEDs
 
-#parse and validate args
+#pixel location constants
+all_pixel_set = range(0, numLEDs);
+heather_pixel_set = range(0, numLEDs/2)
+joe_pixel_set = range(numLEDs/2, numLEDs);
+
+#options
 emulate = False
 silent = False
 useMS = False
 
+#parse and validate args
 try:                                
   opts, args = getopt.getopt(sys.argv[1:], "hs:a:eq", ["help", "sequence=", "audio=", "emulate", "silent"])
 except getopt.GetoptError:
@@ -125,7 +131,24 @@ def getcurtime():
   else:
     cur_time = time.time()
   return cur_time
-####################################################################
+#####################################################################
+
+
+#####################################################################
+# Set all pixels in given set to a given color
+def set_pixel_rgb(rgb, pixel_set):
+  for i in pixel_set:
+    pixels[i] = rgb
+#####################################################################
+
+
+#####################################################################
+# Set all pixels in given set to a given color
+def get_pixel_set(set_name):
+  for i in pixel_set:
+    pixels[i] = rgb
+#####################################################################
+
 
 
 initialize()
@@ -137,6 +160,8 @@ startaudio()
 pixels = black_pixels
 
 # Start sequencing
+heatherSet = False
+joeSet = False
 start_time = getcurtime()
 step       = 1 #ignore the header line
 command = ""
@@ -153,7 +178,7 @@ while True :
     else:
       command_time = float(next_step[0])
     command = next_step[1].rstrip() #assuming this is cleaning up whitespace
-    # value = next_step[2]
+    value = next_step[2] if len(next_step) > 2 else "WHITE"
 
   # time to run the command
   if command_time <= time_elapsed:
@@ -164,10 +189,16 @@ while True :
     # parse command and update pixel map
     if command == "END":
       sys.exit()
+    elif command == "ALL":
+      set_pixel_rgb(white, all_pixel_set)
     elif command == "HEATHER":
-      pixels = [red] * numLEDs
+      color = red if heatherSet else white
+      heatherSet = not heatherSet
+      set_pixel_rgb(color, heather_pixel_set)
     elif command == "JOE":
-      pixels = [green] * numLEDs
+      color = white if joeSet else green
+      joeSet = not joeSet
+      set_pixel_rgb(color, joe_pixel_set)
     
     # push pixels
     put_pixels(pixels)
