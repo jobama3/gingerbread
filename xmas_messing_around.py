@@ -3,7 +3,7 @@
 # Command Line usage:
 #   xmas.py <input sequence> <audio file>
 
-import sys, colorsys, collections
+import sys, colorsys, collections, re
 import getopt
 import time
 import pygame
@@ -208,13 +208,16 @@ while True :
       step += 1
       continue
     
+    raw_time = re.split('\s ', next_step[0])[0]
+    if (debug):
+      print "time: ", raw_time
+    if (useMS):
+      command_time = int(raw_time)
+    else:
+      command_time = float(raw_time)
+      
     command = next_step[1].rstrip() #assuming this is cleaning up whitespace
     print(next_step)
-    
-    if (useMS):
-      command_time = int(next_step[0])
-    else:
-      command_time = float(next_step[0])
 
   # time to run the command!
   if command_time <= time_elapsed:

@@ -1,7 +1,8 @@
 # Test sequence file containing known commands, locations and values
 #
 # TIME(S),COMMAND,LOCATION,OPTIONS
-1,SET_PIXELS,ALL,COLOR=RAINBOW
+# Make sure doubled times like Audacity puts out are okay
+1   1,SET_PIXELS,ALL,COLOR=RAINBOW
 2,SET_PIXELS,ALL,COLOR=WHITE;FADE=TRUE
 
 # Set pixels only in certain locations
