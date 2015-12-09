@@ -43,9 +43,6 @@ emulate = False
 silent = False
 useMS = False
 
-# Sequence options
-color_option = "COLOR"
-
 #parse and validate args
 try:                                
   opts, args = getopt.getopt(sys.argv[1:], "hs:a:eq", ["help", "sequence=", "audio=", "emulate", "silent"])
@@ -191,10 +188,11 @@ command = ""
 while True :
   time_elapsed = getcurtime() - start_time
   
+  # Find next time to run command
   if command == "":
-    # Find next command time.  Expected format:
+    # Expected format:
     # TIME(S),COMMAND...
-    if seq_data[step].startswith("#"):
+    if seq_data[step].startswith("#") or "," not in seq_data[step]:
       # Comment line
       print seq_data[step]
       step += 1
@@ -215,7 +213,7 @@ while True :
     else:
       command_time = float(next_step[0])
 
-  # time to run the command
+  # time to run the command!
   if command_time <= time_elapsed:
     if command == "END":
       print("Merry Xmas! <3")
@@ -229,11 +227,15 @@ while True :
     command_options = "NONE" if (len(next_step) < 4 or "=" not in next_step[3]) else dict(item.split("=") for item in next_step[3].split(";"))
     
     # parse command and update pixel map
+    if "BACKGROUND_COLOR" in command_options:
+      # enh, don't allow RAINBOW for now
+        background_rgb = get_rgb(command_options["BACKGROUND_COLOR"])
+        set_pixel_rgb(background_rgb, location_pixels)
     if command == "SET_EVERY_OTHER_PIXEL":
       location_pixels = location_pixels[::2]
       command = "SET_PIXELS"
     if command == "SET_PIXELS":
-      color = "BLACK" if color_option not in command_options else command_options[color_option]
+      color = "BLACK" if "COLOR" not in command_options else command_options["COLOR"]
       if color == "RAINBOW":
         numPixels = len(location_pixels)
         for i in location_pixels:
