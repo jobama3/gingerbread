@@ -3,7 +3,7 @@
 # Command Line usage:
 #   xmas.py <input sequence> <audio file>
 
-import sys, colorsys
+import sys, colorsys, collections
 import getopt
 import time
 import pygame
@@ -215,7 +215,7 @@ while True :
       
     location = next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
-    value = next_step[3] if len(next_step) > 2 else "WHITE"
+    value = "WHITE" if len(next_step) < 4 else next_step[3]
     
     # parse command and update pixel map
     if command == "SET_EVERY_OTHER_PIXEL":
@@ -230,6 +230,10 @@ while True :
       else:
         rgb = get_rgb(value)
         set_pixel_rgb(rgb, location_pixels)
+    if command == "CHASE":
+      d = collections.deque(pixels)
+      d.rotate(1)
+      pixels = d
     
     # push pixels
     put_pixels(pixels)
