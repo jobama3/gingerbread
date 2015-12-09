@@ -31,7 +31,7 @@ silent = False
 useMS = False
 
 try:                                
-  opts, args = getopt.getopt(sys.argv[1:], "hs:a:es", ["help", "sequence=", "audio=", "emulate", "silent"])
+  opts, args = getopt.getopt(sys.argv[1:], "hs:a:eq", ["help", "sequence=", "audio=", "emulate", "silent"])
 except getopt.GetoptError:
   print "Error parsing args"
   usage()
@@ -48,7 +48,7 @@ for opt, arg in opts:
   elif opt in ("-e", "--emulate"):
     emulate = True
     print "Emulating"
-  elif opt in ("-s", "--silent"):
+  elif opt in ("-q", "--silent"):
     silent = True
 
 try:
@@ -70,7 +70,13 @@ def initialize():
   #create client for fadecandy
   if not emulate:
     global client
+    global emulate
     client = opc.Client('localhost:7890')
+    if client.can_connect():
+      print "Connected to fadecandy server"
+    else:
+      print "WARNING: Could not connect to fadecandy server, running in emulation mode."
+      emulate = True
 ####################################################################
 
 
