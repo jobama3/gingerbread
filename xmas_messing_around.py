@@ -228,7 +228,8 @@ while True :
     location = next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
     command_options = "NONE" if (len(next_step) < 4 or "=" not in next_step[3]) else dict(item.split("=") for item in next_step[3].split(";"))
-    if debug print("command options: ", command_options)
+    if debug:
+      print("command options: ", command_options)
     
     # parse command and update pixel map
     if "BACKGROUND_COLOR" in command_options:
@@ -243,7 +244,8 @@ while True :
         # No overflow checks, hopefully we are smart enough to pass in the right values :)
         location_offset = location_pixels[0]
         location_pixels = [x+location_offset for x in map(int, command_options["PIXELS"].split("."))]
-        if debug print("pixel subset: ", location_pixels)
+        if debug:
+          print("pixel subset: ", location_pixels)
         command = "SET_PIXELS"
     if command == "SET_EVERY_OTHER_PIXEL":
       location_pixels = location_pixels[::2]
