@@ -20,10 +20,11 @@ def usage():
 
 #fadecandy constants
 numLEDs = 50
-black = [ (0,0,0) ] * numLEDs
-white = [ (255,255,255) ] * numLEDs
-green = [ (255,0,0) ] * numLEDs
-red = [ (0,255,0) ] * numLEDs
+black = (0,0,0)
+white = (255,255,255)
+green = (255,0,0)
+red = (0,255,0)
+black_pixels = [ black ] * numLEDs
 
 #parse and validate args
 emulate = False
@@ -66,17 +67,20 @@ except NameError:
 # Do whatever we need to do to reset and prep the pi
 def initialize():
   print("I'm initializing!")
+  global emulate
   
   #create client for fadecandy
   if not emulate:
     global client
-    global emulate
     client = opc.Client('localhost:7890')
     if client.can_connect():
       print "Connected to fadecandy server"
     else:
       print "WARNING: Could not connect to fadecandy server, running in emulation mode."
       emulate = True
+  
+  # turn off all pixels to start
+  put_pixels(black_pixels, now=True);
 ####################################################################
 
 
@@ -103,12 +107,13 @@ def startaudio():
 
 
 #####################################################################
-# Open the input sequnce file and read/parse it
-def put_pixels(pixels):
+def put_pixels(pixels, now=True):
   if emulate:
     heathercandy_emulator.put_pixels(pixels)
   else:
     client.put_pixels(pixels)
+    if (now):
+      client.put_pixels(pixels)
 ####################################################################
 
 
@@ -128,16 +133,19 @@ seq_data = getmusicsequence()
 
 startaudio()
 
+# zero out in-memory pixel map
+pixels = black_pixels
+
 # Start sequencing
 start_time = getcurtime()
 step       = 1 #ignore the header line
-command = "" 
+command = ""
 while True :
   time_elapsed = getcurtime() - start_time
   
   if command == "":
     # Format of input sequence data
-    # TIME(MS),COMMAND,VALUE
+    # TIME(S),COMMAND,VALUE
     next_step = seq_data[step].split(",");
     
     if (useMS):
@@ -150,14 +158,18 @@ while True :
   # time to run the command
   if command_time <= time_elapsed:
     # print next_step
+    print(command)
     step += 1
+    
+    # parse command and update pixel map
     if command == "END":
       sys.exit()
     elif command == "HEATHER":
-      put_pixels(red)
-      print(command)
+      pixels = [red] * numLEDs
     elif command == "JOE":
-      put_pixels(green)
-      print(command)
+      pixels = [green] * numLEDs
+    
+    # push pixels
+    put_pixels(pixels)
     command = ""
 
