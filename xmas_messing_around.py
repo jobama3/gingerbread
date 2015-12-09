@@ -171,7 +171,7 @@ seq_data = getmusicsequence()
 startaudio()
 
 # zero out in-memory pixel map
-pixels = black_pixels
+pixels = [ rgb_colors["BLACK"] ] * numLEDs
 
 # Start sequencing
 heatherSet = False
@@ -210,6 +210,7 @@ while True :
   if command_time <= time_elapsed:
     if command == "END":
       print("Merry Xmas! <3")
+      put_pixels(black_pixels, now=False)
       sys.exit()
       
     location = next_step[2].rstrip()
