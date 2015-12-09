@@ -3,7 +3,7 @@
 # Command Line usage:
 #   xmas.py <input sequence> <audio file>
 
-import sys
+import sys, colorsys
 import getopt
 import time
 import pygame
@@ -27,7 +27,7 @@ rgb_colors = {
   "GREEN": (255,0,0),
   "RED": (0,255,0)
 }
-black_pixels = [ rgb_colors["BLACK"] ] * numLEDs
+black_pixels = [ (0,0,0) ] * numLEDs
 
 #pixel location constants
 # If you add/remove locations, please add/remove a sequence accordingly to test_sequence.txt
@@ -219,8 +219,14 @@ while True :
     
     # parse command and update pixel map
     if command == "SET_PIXELS":
-      rgb = get_rgb(value)
-      set_pixel_rgb(rgb, location_pixels)
+      if value == "RAINBOW":
+        numPixels = len(location_pixels)
+        for i in location_pixels:
+          (r, g, b) = colorsys.hsv_to_rgb(float(i) / numPixels, 1.0, 1.0)
+          pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
+      else:
+        rgb = get_rgb(value)
+        set_pixel_rgb(rgb, location_pixels)
     
     # push pixels
     put_pixels(pixels)
