@@ -220,7 +220,7 @@ while True :
       put_pixels(black_pixels, now=False)
       sys.exit()
     
-    # Parse next sequence, expected format (see top of script for possible options)
+    # Parse next sequence, expected format
     # TIME(S),COMMAND,LOCATION,OPTIONS[COLOR=RED;FADE=TRUE;BACKGROUND=NONE;etc]
     location = next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
@@ -231,6 +231,15 @@ while True :
       # enh, don't allow RAINBOW for now
         background_rgb = get_rgb(command_options["BACKGROUND_COLOR"])
         set_pixel_rgb(background_rgb, location_pixels)
+    if command == "SET_PIXEL_SUBSET":
+      if "PIXELS" not in command_options:
+        print "ERROR: Expected command option 'PIXELS' was not included"
+      else:
+        # Pixel subsets are offsets from the listed location
+        # No overflow checks, hopefully we are smart enough to pass in the right values :)
+        location_offset = location_pixels[0]
+        location_pixels = [x+location_offset for x in map(int, command_options["PIXELS"].split("."))]
+        command = "SET_PIXELS"
     if command == "SET_EVERY_OTHER_PIXEL":
       location_pixels = location_pixels[::2]
       command = "SET_PIXELS"
