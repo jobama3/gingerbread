@@ -212,11 +212,13 @@ while True :
       step += 1
       continue
     
-    raw_time = re.split('\s ', next_step[0])[0]
+    raw_time = re.split('\s|\t', next_step[0])
+    if (debug):
+      print "raw time: ", raw_time
     if (useMS):
-      command_time = int(raw_time) + delayMs
+      command_time = int(raw_time[0]) + delayMs
     else:
-      command_time = float(raw_time) + delayMs/float(1000)
+      command_time = float(raw_time[0]) + delayMs/float(1000)
     if (debug):
       print "time: ", command_time
       
