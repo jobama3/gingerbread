@@ -15,7 +15,7 @@ import heathercandy_emulator
 # Print help
 def usage():
   print "xmas.py --sequence <sequence file> --audio <audio file>"
-  print "   [optional] --emulate --silent"
+  print "   [optional] --emulate --silent --debug --delay <delayInMS>"
 ####################################################################
 
 #fadecandy constants
@@ -43,10 +43,11 @@ emulate = False
 silent = False
 useMS = False
 debug = False
+delayMs = 0
 
 #parse and validate args
 try:                                
-  opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq", ["help", "sequence=", "audio=", "emulate", "silent", "debug"])
+  opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq", ["help", "sequence=", "audio=", "delay=", "emulate", "silent", "debug"])
 except getopt.GetoptError:
   print "Error parsing args"
   usage()
@@ -60,6 +61,9 @@ for opt, arg in opts:
     sequence_file = arg
   elif opt in ("-a", "--audio"):
     audio_file = arg
+  elif opt in ("--delay") and arg:
+    delayMs = int(arg)
+    print "Including delay of ", delayMs
   elif opt in ("-e", "--emulate"):
     emulate = True
     print "Emulating"
@@ -209,12 +213,12 @@ while True :
       continue
     
     raw_time = re.split('\s ', next_step[0])[0]
-    if (debug):
-      print "time: ", raw_time
     if (useMS):
-      command_time = int(raw_time)
+      command_time = int(raw_time) + delayMs
     else:
-      command_time = float(raw_time)
+      command_time = float(raw_time) + delayMs/float(1000)
+    if (debug):
+      print "time: ", command_time
       
     command = next_step[1].rstrip() #assuming this is cleaning up whitespace
     print(next_step)
