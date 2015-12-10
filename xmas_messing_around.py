@@ -99,6 +99,9 @@ def initialize():
       print "WARNING: Could not connect to fadecandy server, running in emulation mode."
       emulate = True
   
+  if emulate:
+    heathercandy_emulator.initialize(numLEDs)
+  
   # turn off all pixels to start
   put_pixels(black_pixels, fade=False);
 ####################################################################
@@ -164,7 +167,7 @@ def get_rgb(colorstring):
   if len(multi_values) == 1:
     return rgb_colors[colorstring] if colorstring in rgb_colors else rgb_colors["WHITE"]
   elif multi_values[0] == "rgb" and len(multi_values) == 4:
-    return (multi_values[1], multi_values[2], multi_values[3])
+    return map(int, multi_values[1::1])
   else:
     return rgb_colors["WHITE"]
 #####################################################################
