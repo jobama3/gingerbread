@@ -15,7 +15,7 @@ import heathercandy_emulator
 # Print help
 def usage():
   print "xmas.py --sequence <sequence file> --audio <audio file>"
-  print "   [optional] --emulate --silent --debug --delay <delayInMS>"
+  print "   [optional] --emulate --silent --debug --delay <delayInMS> --start_time <audioStartInSec>"
 ####################################################################
 
 #fadecandy constants
@@ -43,11 +43,12 @@ emulate = False
 silent = False
 useMS = False
 debug = False
+audio_start_time = 0
 delayMs = 0
 
 #parse and validate args
 try:                                
-  opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq", ["help", "sequence=", "audio=", "delay=", "emulate", "silent", "debug"])
+  opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq", ["help", "sequence=", "audio=", "delay=", "start_time=", "emulate", "silent", "debug"])
 except getopt.GetoptError:
   print "Error parsing args"
   usage()
@@ -61,9 +62,12 @@ for opt, arg in opts:
     sequence_file = arg
   elif opt in ("-a", "--audio"):
     audio_file = arg
-  elif opt in ("--delay") and arg:
+  elif opt == "--delay" and arg:
     delayMs = int(arg)
-    print "Including delay of ", delayMs
+    print "Including delay of", delayMs
+  elif opt == "--start_time" and arg:
+    audio_start_time = float(arg)
+    print "Starting at second:", audio_start_time
   elif opt in ("-e", "--emulate"):
     emulate = True
     print "Emulating"
@@ -120,12 +124,12 @@ def getmusicsequence():
 
 #####################################################################
 # Open the input sequnce file and read/parse it
-def startaudio():
+def startaudio(audio_start_time):
   if not silent:
     # Load and play the music
     pygame.mixer.init()
     pygame.mixer.music.load(audio_file)
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(start=audio_start_time)
 ####################################################################
 
 
@@ -184,7 +188,7 @@ def set_pixel_rgb(rgb, pixel_set):
 initialize()
 seq_data = getmusicsequence()
 
-startaudio()
+startaudio(audio_start_time)
 
 # zero out in-memory pixel map
 pixels = [ rgb_colors["BLACK"] ] * numLEDs
@@ -196,7 +200,7 @@ start_time = getcurtime()
 step       = 0
 command = ""
 while True :
-  time_elapsed = getcurtime() - start_time
+  time_elapsed = getcurtime() - start_time + audio_start_time
   
   # Find next time to run command
   if command == "":
@@ -224,6 +228,10 @@ while True :
       command_time = float(raw_time[0]) + delayMs/float(1000)
     if (debug):
       print "time: ", command_time
+    
+    if audio_start_time > 0 and command_time < audio_start_time:
+      step +=1
+      continue
       
     command = next_step[1].rstrip() #assuming this is cleaning up whitespace
     print(next_step)
