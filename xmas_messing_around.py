@@ -16,8 +16,7 @@ import heathercandy_emulator
 # Print help
 def usage():
     print "xmas.py --sequence <sequence file> --audio <audio file>"
-    print "   [optional] --emulate --silent --debug --delay <delayInMS> --ip <fcserverIP>"
-
+    print "   [optional] --emulate --silent --debug --delay <delayInMS> --ip <fcserverIP> --start_time <audioStartInSec>"
 ####################################################################
 
 # fadecandy constants
@@ -44,13 +43,14 @@ location_pixel_sets = {
 emulate = False
 silent = False
 debug = False
+audio_start_time = 0
 delayMs = 0
 fcServerIp = 'localhost'
 
 # parse and validate args
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hds:a:eq",
-                               ["help", "sequence=", "audio=", "delay=", "ip=", "emulate", "silent", "debug"])
+                               ["help", "sequence=", "audio=", "delay=", "start_time=", "ip=", "emulate", "silent", "debug"])
 except getopt.GetoptError:
     print "Error parsing args"
     usage()
@@ -69,7 +69,10 @@ for opt, arg in opts:
         print "Including delay of ", delayMs
     elif opt in ("--ip") and arg:
         fcServerIp = arg
-        print "Including delay of ", delayMs
+        print "FC Server IP ", fcServerIp
+    elif opt == "--start_time" and arg:
+        audio_start_time = float(arg)
+        print "Starting at second:", audio_start_time
     elif opt in ("-e", "--emulate"):
         emulate = True
         print "Emulating"
@@ -122,7 +125,6 @@ def getmusicsequence():
         for i in range(len(seq_data)):
             seq_data[i] = seq_data[i].rstrip()
     return seq_data
-
 ####################################################################
 
 
@@ -133,8 +135,7 @@ def startaudio():
         # Load and play the music
         pygame.mixer.init()
         pygame.mixer.music.load(audio_file)
-        pygame.mixer.music.play()
-
+        pygame.mixer.music.play(start=audio_start_time)
 ####################################################################
 
 
@@ -177,7 +178,6 @@ def get_rgb(colorstring):
         return map(int, multi_values[1::1])
     else:
         return rgb_colors["WHITE"]
-
 #####################################################################
 
 
@@ -186,7 +186,6 @@ def get_rgb(colorstring):
 def set_pixel_rgb(rgb, pixel_set):
     for i in pixel_set:
         pixels[i] = rgb
-
 #####################################################################
 
 
@@ -250,7 +249,6 @@ class Command(object):
                 fade_filter[i] = v
             if "END_TIME" in self.command_options:
                 fades_in_progress.append(self)
-
     #############################################################
 
 #####################################################################
@@ -279,14 +277,13 @@ def parse_command(command_string):
         print("command options: ", command_options)
 
     return Command(name, command_time, location_pixels, command_options)
-
 #####################################################################
 
 
 initialize()
 seq_data = getmusicsequence()
 
-startaudio()
+startaudio(audio_start_time)
 
 # zero out in-memory pixel map
 pixels = [rgb_colors["BLACK"]] * numLEDs
@@ -311,6 +308,10 @@ while True:
             # Comment line
             print seq_data[step]
             step += 1
+            continue
+
+        if audio_start_time > 0 and command_time < audio_start_time:
+            step +=1
             continue
 
         command = parse_command(seq_data[step])
