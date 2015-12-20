@@ -25,8 +25,9 @@ def quit():
 def put_pixels(pixels):
     i = 0
     for rgb in pixels:
+        pygame_grb = (rgb[1], rgb[0], rgb[2])
         try:
-            pygame.draw.circle(screen, rgb, (i*20 + 10, 10), 10)
+            pygame.draw.circle(screen, pygame_grb, (i*20 + 10, 10), 10)
             i += 1
         except TypeError:
             print "ERROR: Could not display color", rgb
