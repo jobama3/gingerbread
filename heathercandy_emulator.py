@@ -24,8 +24,6 @@ def quit():
 
 def put_pixels(pixels):
     i = 0
-    print pixels
-    print
     for rgb in pixels:
         try:
             pygame.draw.circle(screen, rgb, (i*20 + 10, 10), 10)
