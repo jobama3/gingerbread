@@ -97,7 +97,11 @@ except NameError:
 # Do whatever we need to do to reset and prep the pi
 def initialize():
     print("I'm initializing!")
-    global emulate
+    global emulate, running, pixels
+    running = True
+    
+    # zero out in-memory pixel map
+    pixels = [rgb_colors["BLACK"]] * numLEDs
 
     # create client for fadecandy
     if not emulate:
@@ -110,11 +114,31 @@ def initialize():
             emulate = True
 
     if emulate:
-        heathercandy_emulator.initialize(numLEDs)
+        heathercandy_emulator.initialize(numLEDs, main_func, quit_func)
+        sys.exit(0)
 
     # turn off all pixels to start
     put_pixels(black_pixels, fade=False);
+    main_func()
 ###################################################################
+
+
+####################################################################
+# Handle closing all resources
+def quit_func():
+    global running
+    running = False
+    
+    # turn off all pixels to end
+    put_pixels(black_pixels, fade=False);
+    
+    if emulate:
+        heathercandy_emulator.quit()
+    if not silent:
+        pygame.mixer.music.stop()
+    
+    sys.exit(0)
+#####################################################################
 
 
 #####################################################################
@@ -140,13 +164,13 @@ def startaudio(audio_start_time):
 
 
 #####################################################################
-def put_pixels(pixels, fade=False, fade_filter=None):
-    output_pixels = list(pixels)
+def put_pixels(pixel_def, fade=False, fade_filter=None):
+    output_pixels = list(pixel_def)
     if fade_filter:
-        print pixels
+        print pixel_def
         print fade_filter
-        for i in range(len(pixels)):
-            (r, g, b) = pixels[i]
+        for i in range(len(pixel_def)):
+            (r, g, b) = pixel_def[i]
             (h, s, v) = colorsys.rgb_to_hsv(float(r) / 255, float(g) / 255, float(b) / 255)
             (r, g, b) = colorsys.hsv_to_rgb(h, s, v * fade_filter[i])
             output_pixels[i] = (int(r * 255), int(g * 255), int(b * 255))
@@ -204,8 +228,7 @@ class Command(object):
         global pixels, commands_in_progress
         if self.name == "END":
             print("Merry Xmas! <3")
-            put_pixels(black_pixels, fade=True)
-            sys.exit()
+            quit_func()
 
         # parse command and update pixel map
         if "BACKGROUND_COLOR" in self.command_options:
@@ -269,7 +292,7 @@ def parse_command(command_string):
     print(next_step)
     # Parse next sequence, expected format
     # TIME(S),COMMAND,LOCATION,OPTIONS[COLOR=RED;FADE=TRUE;BACKGROUND=NONE;etc]
-    location = next_step[2].rstrip()
+    location = "" if name == "END" else next_step[2].rstrip()
     location_pixels = get_location_pixels(location)
     command_options = "NONE" if (len(next_step) < 4 or "=" not in next_step[3]) else dict(
         item.split("=") for item in next_step[3].split(";"))
@@ -280,58 +303,61 @@ def parse_command(command_string):
 #####################################################################
 
 
-initialize()
-seq_data = getmusicsequence()
+#####################################################################
+# Main control loop.  This is where the xmas magic happens.
+def main_func():
+    global running, fade_filter
+    seq_data = getmusicsequence()
+    
+    startaudio(audio_start_time)
+    
+    # Start sequencing
+    heatherSet = False
+    joeSet = False
+    start_time = time.time()
+    step = 0
+    command = None
+    fades_in_progress = []
+    fade_filter = [1.0] * numLEDs
 
-startaudio(audio_start_time)
-
-# zero out in-memory pixel map
-pixels = [rgb_colors["BLACK"]] * numLEDs
-fade_filter = [1.0] * numLEDs
-
-# Start sequencing
-heatherSet = False
-joeSet = False
-start_time = time.time()
-step = 0
-command = None
-fades_in_progress = []
-
-while True:
-    time_elapsed = time.time() - start_time
-
-    # Find next time to run command
-    if command == None:
-        # Expected format:
-        # TIME(S),COMMAND...
-        if seq_data[step].startswith("#") or "," not in seq_data[step]:
-            # Comment line
-            print seq_data[step]
+    while running:
+        time_elapsed = time.time() - start_time
+    
+        # Find next time to run command
+        if command == None:
+            # Expected format:
+            # TIME(S),COMMAND...
+            if seq_data[step].startswith("#") or "," not in seq_data[step]:
+                # Comment line
+                print seq_data[step]
+                step += 1
+                continue
+    
+            if audio_start_time > 0 and command_time < audio_start_time:
+                step +=1
+                continue
+    
+            command = parse_command(seq_data[step])
+    
+        # time to run the command!
+        if command.command_time <= time_elapsed:
+            command.run()
+            # push pixels
+            put_pixels(pixels, fade="FADE" in command.command_options, fade_filter=fade_filter)
+            command = None
             step += 1
-            continue
+    
+        else:
+            for fade_command in fades_in_progress:
+                end_time = float(fade_command.command_options["END_TIME"])
+                if time_elapsed > end_time:
+                    fades_in_progress.remove(fade_command)
+                else:
+                    progress = (time_elapsed - fade_command.command_time) / (end_time - fade_command.command_time)
+                    if fade_command.command_options["FTYPE"] == "DOWN": progress = 1.0 - progress
+                    for i in fade_command.location_pixels:
+                        fade_filter[i] = progress
+                    put_pixels(pixels, fade_filter=fade_filter)
+#####################################################################
 
-        if audio_start_time > 0 and command_time < audio_start_time:
-            step +=1
-            continue
-
-        command = parse_command(seq_data[step])
-
-    # time to run the command!
-    if command.command_time <= time_elapsed:
-        command.run()
-        # push pixels
-        put_pixels(pixels, fade="FADE" in command.command_options, fade_filter=fade_filter)
-        command = None
-        step += 1
-
-    else:
-        for fade_command in fades_in_progress:
-            end_time = float(fade_command.command_options["END_TIME"])
-            if time_elapsed > end_time:
-                fades_in_progress.remove(fade_command)
-            else:
-                progress = (time_elapsed - fade_command.command_time) / (end_time - fade_command.command_time)
-                if fade_command.command_options["FTYPE"] == "DOWN": progress = 1.0 - progress
-                for i in fade_command.location_pixels:
-                    fade_filter[i] = progress
-                put_pixels(pixels, fade_filter=fade_filter)
+initialize()
