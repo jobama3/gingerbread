@@ -130,7 +130,7 @@ def getmusicsequence():
 
 #####################################################################
 # Open the input sequnce file and read/parse it
-def startaudio():
+def startaudio(audio_start_time):
     if not silent:
         # Load and play the music
         pygame.mixer.init()
