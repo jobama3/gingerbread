@@ -167,8 +167,9 @@ def startaudio(audio_start_time):
 def put_pixels(pixel_def, fade=False, fade_filter=None):
     output_pixels = list(pixel_def)
     if fade_filter:
-        print pixel_def
-        print fade_filter
+        if debug:
+            print pixel_def
+            print fade_filter
         for i in range(len(pixel_def)):
             (r, g, b) = pixel_def[i]
             (h, s, v) = colorsys.rgb_to_hsv(float(r) / 255, float(g) / 255, float(b) / 255)
