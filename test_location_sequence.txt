@@ -1,0 +1,6 @@
+# Test sequence file containing all locations
+#
+# TIME(S),COMMAND,LOCATION,OPTIONS
+1,SET_PIXELS,T,COLOR=RED
+2,SET_PIXELS,ALL,COLOR=WHITE;FADE=TRUE
+3,END
