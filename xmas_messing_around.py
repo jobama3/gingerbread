@@ -38,7 +38,8 @@ location_pixel_sets = {
     "HEATHER": range(0, numLEDs / 2),
     "JOE": range(numLEDs / 2, numLEDs),
     "T": range(1, 10),
-    "FR": range(10, 15)
+    "RF": range(10, 15),
+    "RS": range(15, 22)
 }
 
 # argument options
