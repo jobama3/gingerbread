@@ -40,7 +40,9 @@ location_pixel_sets = {
     "T": range(1, 10),
     "RF": range(10, 15),
     "RS": range(15, 22),
-    "RB": range(22, 27)
+    "RB": range(22, 27),
+    "LB": range(27, 32),
+    "LS": range(32, 39)
 }
 
 # argument options
