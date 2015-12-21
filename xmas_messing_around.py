@@ -39,7 +39,8 @@ location_pixel_sets = {
     "JOE": range(numLEDs / 2, numLEDs),
     "T": range(1, 10),
     "RF": range(10, 15),
-    "RS": range(15, 22)
+    "RS": range(15, 22),
+    "RB": range(22, 27)
 }
 
 # argument options
