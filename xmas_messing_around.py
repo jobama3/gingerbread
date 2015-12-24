@@ -274,8 +274,10 @@ class Command(object):
         if self.name == "CHASE":
             d = collections.deque(pixels[i] for i in self.location_pixels)
             d.rotate(1)
+            j = 0
             for i in self.location_pixels:
-                pixels[i] = d[i]
+                pixels[i] = d[j]
+                j = j + 1
         if "FADE" in self.name:
             v = 1.0
             if self.command_options["FTYPE"] == "UP": v = 0
