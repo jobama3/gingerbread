@@ -236,7 +236,7 @@ class Command(object):
     #####################################################################
     # Perform the command on global pixels
     def run(self):
-        global pixels, commands_in_progress
+        global pixels, commands_in_progress, fades_in_progress
         if self.name == "END":
             print("Merry Xmas! <3")
             quit_func()
@@ -319,7 +319,7 @@ def parse_command(command_string):
 #####################################################################
 # Main control loop.  This is where the xmas magic happens.
 def main_func():
-    global running, fade_filter
+    global running, fade_filter, fades_in_progress
     seq_data = getmusicsequence()
     
     startaudio(audio_start_time)
