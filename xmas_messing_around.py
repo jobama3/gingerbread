@@ -55,6 +55,7 @@ silent = False
 debug = False
 audio_start_time = 0
 delayMs = 0
+audio_file = 0
 fcServerIp = 'localhost'
 
 # parse and validate args
@@ -93,6 +94,8 @@ for opt, arg in opts:
 
 try:
     print "Sequence file: ", sequence_file
+    if audio_file == 0:
+        silent = True  
     if not silent:
         print "Audio file: ", audio_file
     else:
