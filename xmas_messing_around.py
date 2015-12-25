@@ -343,7 +343,7 @@ def main_func():
         if command == None:
             # Expected format:
             # TIME(S),COMMAND...
-            if seq_data[step].startswith("#") or "," not in seq_data[step]:
+            if "#" in seq_data[step] or "," not in seq_data[step]:
                 # Comment line
                 print seq_data[step]
                 step += 1
