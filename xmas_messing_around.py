@@ -48,6 +48,7 @@ location_pixel_sets = {
 
 location_pixel_sets["R"] = location_pixel_sets["RF"] + location_pixel_sets["RS"] + location_pixel_sets["RB"]
 location_pixel_sets["L"] = location_pixel_sets["LF"] + location_pixel_sets["LS"] + location_pixel_sets["LB"]
+location_pixel_sets["F"] = location_pixel_sets["LF"] + location_pixel_sets["RF"]
 
 # argument options
 emulate = False
