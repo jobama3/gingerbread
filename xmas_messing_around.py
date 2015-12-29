@@ -321,41 +321,56 @@ def parse_command(command_string):
 
 
 #####################################################################
+# Get next valid command
+def get_next_command(seq_data, step):
+    command = None
+    while command == None:
+        # Expected format:
+        # TIME(S),COMMAND...
+        if "#" in seq_data[step] or "," not in seq_data[step]:
+            # Comment line
+            print seq_data[step]
+            step += 1
+            command = None
+            continue
+
+        command = parse_command(seq_data[step])
+        if audio_start_time > 0 and command.command_time < audio_start_time:
+            step += 1
+            command = None
+            continue
+    
+    return command, step
+        
+#####################################################################
+
+
+#####################################################################
 # Main control loop.  This is where the xmas magic happens.
 def main_func():
     global running, fade_filter, fades_in_progress
     seq_data = getmusicsequence()
-    
-    startaudio(audio_start_time)
     
     # Start sequencing
     heatherSet = False
     joeSet = False
     start_time = time.time()
     step = 0
-    command = None
+    command, step = get_next_command(seq_data, step)
     fades_in_progress = []
     fade_filter = [1.0] * numLEDs
+    
+    print("Beginning!")
+    
+    startaudio(audio_start_time)
 
     while running:
-        time_elapsed = time.time() - start_time
+        time_elapsed = time.time() - start_time + audio_start_time 
     
         # Find next time to run command
         if command == None:
-            # Expected format:
-            # TIME(S),COMMAND...
-            if "#" in seq_data[step] or "," not in seq_data[step]:
-                # Comment line
-                print seq_data[step]
-                step += 1
-                continue
-    
-            if audio_start_time > 0 and command_time < audio_start_time:
-                step +=1
-                continue
-    
-            command = parse_command(seq_data[step])
-    
+            command, step = get_next_command(seq_data, step)
+        
         # time to run the command!
         if command.command_time <= time_elapsed:
             command.run()
