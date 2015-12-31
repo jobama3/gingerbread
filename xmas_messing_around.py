@@ -49,6 +49,7 @@ location_pixel_sets = {
 location_pixel_sets["R"] = location_pixel_sets["RF"] + location_pixel_sets["RS"] + location_pixel_sets["RB"]
 location_pixel_sets["L"] = location_pixel_sets["LF"] + location_pixel_sets["LS"] + location_pixel_sets["LB"]
 location_pixel_sets["F"] = location_pixel_sets["LF"] + location_pixel_sets["RF"]
+location_pixel_sets["ROOF_EDGE"] = location_pixel_sets["R"] + location_pixel_sets["L"]
 
 # argument options
 emulate = False
@@ -211,7 +212,9 @@ def get_location_pixels(locationstring):
 def get_rgb(colorstring):
     # Use known colors, or raw values like 'rbg.255.255.255'
     multi_values = colorstring.split(".")
-    if len(multi_values) == 1:
+    if colorstring == "RANDOM":
+        return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    elif len(multi_values) == 1:
         return rgb_colors[colorstring] if colorstring in rgb_colors else rgb_colors["WHITE"]
     elif multi_values[0] == "rgb" and len(multi_values) == 4:
         return map(int, multi_values[1::1])
