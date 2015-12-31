@@ -115,6 +115,7 @@ def initialize():
     print("I'm initializing!")
     global emulate, running, pixels
     signal.signal(signal.SIGINT, ctrl_c_handler)
+    signal.signal(signal.SIGTERM, ctrl_c_handler)
     running = True
     
     # zero out in-memory pixel map
