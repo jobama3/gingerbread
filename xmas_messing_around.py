@@ -3,7 +3,7 @@
 # Command Line usage:
 #   xmas.py <input sequence> <audio file>
 
-import sys, colorsys, collections, re
+import sys, colorsys, collections, re, signal
 import getopt
 import time
 import pygame
@@ -114,6 +114,7 @@ except NameError:
 def initialize():
     print("I'm initializing!")
     global emulate, running, pixels
+    signal.signal(signal.SIGINT, ctrl_c_handler)
     running = True
     
     # zero out in-memory pixel map
@@ -138,6 +139,12 @@ def initialize():
     main_func()
 ###################################################################
 
+
+####################################################################
+def ctrl_c_handler(signal, frame):
+        print(":( You didn't like the show?")
+        quit_func()
+#####################################################################
 
 ####################################################################
 # Handle closing all resources
