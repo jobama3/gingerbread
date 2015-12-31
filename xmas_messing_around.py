@@ -49,6 +49,7 @@ location_pixel_sets = {
 location_pixel_sets["R"] = location_pixel_sets["RF"] + location_pixel_sets["RS"] + location_pixel_sets["RB"]
 location_pixel_sets["L"] = location_pixel_sets["LF"] + location_pixel_sets["LS"] + location_pixel_sets["LB"]
 location_pixel_sets["F"] = location_pixel_sets["LF"] + location_pixel_sets["RF"]
+location_pixel_sets["S"] = location_pixel_sets["LS"] + location_pixel_sets["RS"]
 location_pixel_sets["ROOF_EDGE"] = location_pixel_sets["R"] + location_pixel_sets["L"]
 
 # argument options
@@ -309,7 +310,8 @@ def parse_command(command_string):
     if (debug):
         print "time: ", command_time
     name = next_step[1].rstrip()  # assuming this is cleaning up whitespace
-    print(next_step)
+    if (debug):
+        print(next_step)
     # Parse next sequence, expected format
     # TIME(S),COMMAND,LOCATION,OPTIONS[COLOR=RED;FADE=TRUE;BACKGROUND=NONE;etc]
     location = "" if name == "END" else next_step[2].rstrip()
@@ -359,7 +361,7 @@ def main_func():
     joeSet = False
     start_time = time.time()
     step = 0
-    command, step = get_next_command(seq_data, step)
+    command = None
     fades_in_progress = []
     fade_filter = [1.0] * numLEDs
     
