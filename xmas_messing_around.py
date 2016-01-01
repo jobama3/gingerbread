@@ -58,6 +58,7 @@ silent = False
 debug = False
 audio_start_time = 0
 delayMs = 0
+delay = 0
 audio_file = 0
 fcServerIp = 'localhost'
 
@@ -80,7 +81,8 @@ for opt, arg in opts:
         audio_file = arg
     elif opt in ("--delay") and arg:
         delayMs = int(arg)
-        print "Including delay of ", delayMs
+        delay = delayMs / float(1000)
+        print "Including delay of ", delayMs, " milliseconds"
     elif opt in ("--ip") and arg:
         fcServerIp = arg
         print "FC Server IP ", fcServerIp
@@ -314,7 +316,7 @@ def parse_command(command_string):
     raw_time = re.split('\s|\t', next_step[0])
     if (debug):
         print "raw time: ", raw_time
-    command_time = float(raw_time[0]) + delayMs / float(1000)
+    command_time = float(raw_time[0]) + delay
     if (debug):
         print "time: ", command_time
     name = next_step[1].rstrip()  # assuming this is cleaning up whitespace
@@ -394,7 +396,7 @@ def main_func():
     
         else:
             for fade_command in fades_in_progress:
-                end_time = float(fade_command.command_options["END_TIME"])
+                end_time = float(fade_command.command_options["END_TIME"]) + delay
                 if time_elapsed > end_time:
                     fades_in_progress.remove(fade_command)
                 else:
