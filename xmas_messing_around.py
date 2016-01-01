@@ -37,13 +37,19 @@ location_pixel_sets = {
     "ALL": all_pixels,
     "HEATHER": range(0, numLEDs / 2),
     "JOE": range(numLEDs / 2, numLEDs),
-    "T": range(1, 10),
+    "T": range(1, 10) + [44],
     "RF": range(10, 15),
     "RS": range(15, 22),
     "RB": range(22, 27),
     "LB": range(27, 32),
     "LS": range(32, 39),
-    "LF": range(39, 44)
+    "LF": range(39, 44),
+    "W1": [45],
+    "W2": [46],
+    "W3": [47],
+    "W4": [48],
+    "W5": [49],
+    "C": [0],
 }
 
 location_pixel_sets["R"] = location_pixel_sets["RF"] + location_pixel_sets["RS"] + location_pixel_sets["RB"]
@@ -212,8 +218,11 @@ def put_pixels(pixel_def, fade=False, fade_filter=None):
 #####################################################################
 # Get location pixel set from string
 def get_location_pixels(locationstring):
-    # Eventually let individual pixels or a range or a list get used
-    return all_pixels if not locationstring in location_pixel_sets else location_pixel_sets[locationstring]
+    multi_locations = locationstring.split("+")
+    pixels = []
+    for loc in multi_locations:
+        pixels += all_pixels if not loc in location_pixel_sets else location_pixel_sets[loc]
+    return pixels
 
 #####################################################################
 
