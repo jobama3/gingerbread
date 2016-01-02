@@ -27,12 +27,12 @@ rgb_colors = {
     "WHITE": (255, 255, 255),
     "GREEN": (255, 0, 0),
     "RED": (0, 255, 0),
-    "BLUE":	(0, 145, 255), 
-    "PURPLE": (72, 0, 255), 
-    "PINK": (255, 0, 218), 
+    "PURPLE":	(0, 145, 255),
+    "BLUE": (72, 0, 255),
+    "TEAL": (255, 0, 218),
     "YELLOW": (255, 218, 0), 
-    "L_GREEN": (72, 255, 0), 
-    "TEAL": (0, 255, 145)
+    "L_GREEN": (255, 72, 0),
+    "PINK": (0, 255, 145)
 }
 black_pixels = [(0, 0, 0)] * numLEDs
 
@@ -287,8 +287,7 @@ class Command(object):
             else:
                 # Pixel subsets are offsets from the listed location
                 # No overflow checks, hopefully we are smart enough to pass in the right values :)
-                location_offset = self.location_pixels[0]
-                self.location_pixels = [x + location_offset for x in
+                self.location_pixels = [self.location_pixels[x] for x in
                                         map(int, self.command_options["PIXELS"].split("."))]
                 if debug:
                     print("pixel subset: ", self.location_pixels)
