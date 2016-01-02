@@ -2,7 +2,8 @@
 
 import opc, time, sys, random, collections, colorsys
 
-client = opc.Client('localhost:7890')
+fadecandy_ip = "localhost" if sys.argv.count < 3 else sys.argv[2]
+client = opc.Client(fadecandy_ip + ':7890')
 
 start = 0
 end = 50
