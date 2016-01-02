@@ -43,13 +43,13 @@ location_pixel_sets = {
     "ALL": all_pixels,
     "HEATHER": range(0, numLEDs / 2),
     "JOE": range(numLEDs / 2, numLEDs),
-    "T": range(1, 10) + [44],
-    "RF": range(10, 15),
-    "RS": range(15, 22),
-    "RB": range(22, 27),
-    "LB": range(27, 32),
-    "LS": range(32, 39),
-    "LF": range(39, 44),
+    "T": range(1, 11),
+    "LF": range(11, 16),
+    "LS": range(16, 23),
+    "LB": range(23, 28),
+    "RB": range(28, 33),
+    "RS": range(33, 40),
+    "RF": range(40, 45),
     "W1": [45],
     "W2": [46],
     "W3": [47],
@@ -61,8 +61,10 @@ location_pixel_sets = {
 location_pixel_sets["R"] = location_pixel_sets["RF"] + location_pixel_sets["RS"] + location_pixel_sets["RB"]
 location_pixel_sets["L"] = location_pixel_sets["LF"] + location_pixel_sets["LS"] + location_pixel_sets["LB"]
 location_pixel_sets["F"] = location_pixel_sets["LF"] + location_pixel_sets["RF"]
+location_pixel_sets["B"] = location_pixel_sets["LB"] + location_pixel_sets["RB"]
 location_pixel_sets["S"] = location_pixel_sets["LS"] + location_pixel_sets["RS"]
 location_pixel_sets["ROOF_EDGE"] = location_pixel_sets["R"] + location_pixel_sets["L"]
+location_pixel_sets["W"] = location_pixel_sets["W1"] + location_pixel_sets["W2"] + location_pixel_sets["W3"] + location_pixel_sets["W4"] + location_pixel_sets["W5"]
 
 # argument options
 emulate = False
